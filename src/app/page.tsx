@@ -1,101 +1,92 @@
-import Image from "next/image";
+"use client";
+import React, { useState } from "react";
+import GroupForm from "./components/GroupForm";
+import GroupList, { Group } from "./components/GroupList";
+import UserForm from "./components/UserForm";
+import RoommateList, { Roommate } from "./components/RoommateList";
+import BillForm from "./components/BillForm";
 
-export default function Home() {
+const initialRoommates: Roommate[] = [
+  { id: 1, name: "AJ Corrado", amountDue: 0, paid: false },
+  { id: 2, name: "Sam McMonagle", amountDue: 0, paid: false },
+  { id: 3, name: "Blake Saito", amountDue: 0, paid: false },
+  { id: 4, name: "Dominic Frontino", amountDue: 0, paid: false },
+  { id: 5, name: "Hunter Adrian", amountDue: 0, paid: false },
+  { id: 6, name: "Ian Oswalt", amountDue: 0, paid: false },
+  { id: 7, name: "Harrison Trahan", amountDue: 0, paid: false },
+  { id: 8, name: "Keegan Rothrock", amountDue: 0, paid: false },
+  { id: 9, name: "Drew Clearie", amountDue: 0, paid: false },
+];
+
+const Home: React.FC = () => {
+  const [groups, setGroups] = useState<Group[]>([
+    { id: 1, name: "House Utils", members: initialRoommates },
+    { id: 2, name: "Poker", members: initialRoommates },
+  ]);
+  const [selectedGroupId, setSelectedGroupId] = useState<number>(1);
+  const [nextGroupId, setNextGroupId] = useState<number>(2);
+  const [nextUserId, setNextUserId] = useState<number>(10);
+
+  // Create a new group
+  const handleGroupCreate = (groupName: string) => {
+    const newGroup: Group = {
+      id: nextGroupId,
+      name: groupName,
+      members: [],
+    };
+    setGroups([...groups, newGroup]);
+    setNextGroupId(nextGroupId + 1);
+  };
+
+  // Add a new user to the selected group
+  const handleUserCreate = (userName: string) => {
+    if (selectedGroupId === null) return;
+    const newUser: Roommate = {
+      id: nextUserId,
+      name: userName,
+      amountDue: 0,
+      paid: false,
+    };
+    setNextUserId(nextUserId + 1);
+    setGroups(
+      groups.map((group) =>
+        group.id === selectedGroupId
+          ? { ...group, members: [...group.members, newUser] }
+          : group
+      )
+    );
+  };
+
+  // Update members for the selected group (e.g., after bill splitting)
+  const updateGroupMembers = (updatedMembers: Roommate[]) => {
+    if (selectedGroupId === null) return;
+    setGroups(
+      groups.map((group) =>
+        group.id === selectedGroupId ? { ...group, members: updatedMembers } : group
+      )
+    );
+  };
+
+  const selectedGroup = groups.find((group) => group.id === selectedGroupId);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <main className="p-6 max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Utility Bill Splitter with Groups</h1>
+      <GroupForm onGroupCreate={handleGroupCreate} />
+      <GroupList groups={groups} selectedGroupId={selectedGroupId} onSelectGroup={setSelectedGroupId} />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      {selectedGroup ? (
+        <>
+          <h2 className="text-xl font-bold mb-2">Group: {selectedGroup.name}</h2>
+          <UserForm onUserCreate={handleUserCreate} />
+          <BillForm roommates={selectedGroup.members} updateRoommates={updateGroupMembers} />
+          <RoommateList roommates={selectedGroup.members} updateRoommates={updateGroupMembers} />
+        </>
+      ) : (
+        <p>Please select a group to add users and split bills.</p>
+      )}
+    </main>
   );
-}
+};
+
+export default Home;

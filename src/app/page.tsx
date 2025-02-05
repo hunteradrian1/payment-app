@@ -1,92 +1,122 @@
+// /app/page.tsx
 "use client";
-import React, { useState } from "react";
-import GroupForm from "./components/GroupForm";
-import GroupList, { Group } from "./components/GroupList";
-import UserForm from "./components/UserForm";
-import RoommateList, { Roommate } from "./components/RoommateList";
-import BillForm from "./components/BillForm";
 
-const initialRoommates: Roommate[] = [
-  { id: 1, name: "AJ Corrado", amountDue: 0, paid: false },
-  { id: 2, name: "Sam McMonagle", amountDue: 0, paid: false },
-  { id: 3, name: "Blake Saito", amountDue: 0, paid: false },
-  { id: 4, name: "Dominic Frontino", amountDue: 0, paid: false },
-  { id: 5, name: "Hunter Adrian", amountDue: 0, paid: false },
-  { id: 6, name: "Ian Oswalt", amountDue: 0, paid: false },
-  { id: 7, name: "Harrison Trahan", amountDue: 0, paid: false },
-  { id: 8, name: "Keegan Rothrock", amountDue: 0, paid: false },
-  { id: 9, name: "Drew Clearie", amountDue: 0, paid: false },
+import { useState, useEffect } from "react";
+import TabBar from "@/components/TabBar";
+import AddPlayerForm from "@/components/AddPlayerForm";
+import PlayerList from "@/components/PlayerList";
+import TournamentControls from "@/components/TournamentControls";
+import EndGameSummary from "@/components/EndGameSummary";
+import PastTournamentsList from "@/components/PastTournamentsList";
+import { Player, Tournament } from "@/types";
+
+const LOCAL_STORAGE_PLAYERS_KEY = "currentTournamentPlayers";
+const LOCAL_STORAGE_PAST_KEY = "pastTournaments";
+
+const defaultPlayers: Player[] = [
+  { id: 1, name: "Alice", totalBuyIn: 10, finalCash: null },
+  { id: 2, name: "Bob", totalBuyIn: 10, finalCash: null },
+  { id: 3, name: "Charlie", totalBuyIn: 10, finalCash: null },
 ];
 
-const Home: React.FC = () => {
-  const [groups, setGroups] = useState<Group[]>([
-    { id: 1, name: "House Utils", members: initialRoommates },
-    { id: 2, name: "Poker", members: initialRoommates },
-  ]);
-  const [selectedGroupId, setSelectedGroupId] = useState<number>(1);
-  const [nextGroupId, setNextGroupId] = useState<number>(2);
-  const [nextUserId, setNextUserId] = useState<number>(10);
+export default function HomePage() {
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [pastTournaments, setPastTournaments] = useState<Tournament[]>([]);
+  const [activeTab, setActiveTab] = useState<"current" | "past">("current");
+  const [showEndGameSummary, setShowEndGameSummary] = useState(false);
 
-  // Create a new group
-  const handleGroupCreate = (groupName: string) => {
-    const newGroup: Group = {
-      id: nextGroupId,
-      name: groupName,
-      members: [],
+  // Load current tournament players from localStorage.
+  useEffect(() => {
+    const storedPlayers = localStorage.getItem(LOCAL_STORAGE_PLAYERS_KEY);
+    if (storedPlayers) {
+      setPlayers(JSON.parse(storedPlayers));
+    } else {
+      setPlayers(defaultPlayers);
+    }
+  }, []);
+
+  // Save current tournament players to localStorage when changed.
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_PLAYERS_KEY, JSON.stringify(players));
+  }, [players]);
+
+  // Load past tournaments from localStorage.
+  useEffect(() => {
+    const storedTournaments = localStorage.getItem(LOCAL_STORAGE_PAST_KEY);
+    if (storedTournaments) {
+      setPastTournaments(JSON.parse(storedTournaments));
+    }
+  }, []);
+
+  // Save past tournaments when changed.
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_PAST_KEY, JSON.stringify(pastTournaments));
+  }, [pastTournaments]);
+
+  // When ending the game, store the tournament in pastTournaments and show the summary.
+  const handleEndGame = (tournamentName: string) => {
+    const newTournament: Tournament = {
+      id: Date.now(),
+      name: tournamentName,
+      date: new Date().toISOString(),
+      players: players,
+      debts: [],
     };
-    setGroups([...groups, newGroup]);
-    setNextGroupId(nextGroupId + 1);
+    setPastTournaments([newTournament, ...pastTournaments]);
+    setShowEndGameSummary(true);
   };
 
-  // Add a new user to the selected group
-  const handleUserCreate = (userName: string) => {
-    if (selectedGroupId === null) return;
-    const newUser: Roommate = {
-      id: nextUserId,
-      name: userName,
-      amountDue: 0,
-      paid: false,
-    };
-    setNextUserId(nextUserId + 1);
-    setGroups(
-      groups.map((group) =>
-        group.id === selectedGroupId
-          ? { ...group, members: [...group.members, newUser] }
-          : group
+  // Reset the current tournament (clearing final cash values).
+  const handleResetTournament = () => {
+    if (
+      confirm(
+        "Are you sure you want to reset the tournament? This will clear final cash and start a new game."
       )
-    );
+    ) {
+      const resetPlayers = players.map((player) => ({
+        ...player,
+        finalCash: null,
+      }));
+      setPlayers(resetPlayers);
+      setShowEndGameSummary(false);
+    }
   };
 
-  // Update members for the selected group (e.g., after bill splitting)
-  const updateGroupMembers = (updatedMembers: Roommate[]) => {
-    if (selectedGroupId === null) return;
-    setGroups(
-      groups.map((group) =>
-        group.id === selectedGroupId ? { ...group, members: updatedMembers } : group
-      )
-    );
+  // Update players from child components.
+  const updatePlayers = (updatedPlayers: Player[]) => {
+    setPlayers(updatedPlayers);
   };
-
-  const selectedGroup = groups.find((group) => group.id === selectedGroupId);
 
   return (
-    <main className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Utility Bill Splitter with Groups</h1>
-      <GroupForm onGroupCreate={handleGroupCreate} />
-      <GroupList groups={groups} selectedGroupId={selectedGroupId} onSelectGroup={setSelectedGroupId} />
+    <main className="p-4">
+      <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {selectedGroup ? (
-        <>
-          <h2 className="text-xl font-bold mb-2">Group: {selectedGroup.name}</h2>
-          <UserForm onUserCreate={handleUserCreate} />
-          <BillForm roommates={selectedGroup.members} updateRoommates={updateGroupMembers} />
-          <RoommateList roommates={selectedGroup.members} updateRoommates={updateGroupMembers} />
-        </>
+      {activeTab === "current" ? (
+        <section aria-label="Current Tournament Ledger">
+          <h1 className="text-3xl font-bold mb-4">
+            Current Tournament Ledger
+          </h1>
+          <AddPlayerForm players={players} updatePlayers={updatePlayers} />
+          <PlayerList players={players} updatePlayers={updatePlayers} />
+          <TournamentControls
+            players={players}
+            updatePlayers={updatePlayers}
+            onEndGame={handleEndGame}
+            onReset={handleResetTournament}
+          />
+          {showEndGameSummary && (
+            <EndGameSummary
+              players={players}
+              onClose={() => setShowEndGameSummary(false)}
+            />
+          )}
+        </section>
       ) : (
-        <p>Please select a group to add users and split bills.</p>
+        <section aria-label="Past Tournaments">
+          <h1 className="text-3xl font-bold mb-4">Past Tournaments</h1>
+          <PastTournamentsList tournaments={pastTournaments} />
+        </section>
       )}
     </main>
   );
-};
-
-export default Home;
+}

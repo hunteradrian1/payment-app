@@ -16,42 +16,35 @@ interface EndGameSummaryProps {
 }
 
 function calculateDebts(players: Player[]): Debt[] {
-  // Create arrays of winners and losers (only include players with finalCash set)
+  // Only include players with finalCash values.
   type PlayerWithNet = Player & { net: number };
-  let winners: PlayerWithNet[] = players
-    .filter((p) => p.finalCash !== null)
-    .map((p) => ({ ...p, net: p.finalCash! - p.totalBuyIn }))
-    .filter((p) => p.net > 0)
+  const winners: PlayerWithNet[] = players
+    .filter(p => p.finalCash !== null)
+    .map(p => ({ ...p, net: (p.finalCash as number) - p.totalBuyIn }))
+    .filter(p => p.net > 0)
     .sort((a, b) => b.net - a.net);
-  let losers: PlayerWithNet[] = players
-    .filter((p) => p.finalCash !== null)
-    .map((p) => ({ ...p, net: p.finalCash! - p.totalBuyIn }))
-    .filter((p) => p.net < 0)
+
+  const losers: PlayerWithNet[] = players
+    .filter(p => p.finalCash !== null)
+    .map(p => ({ ...p, net: (p.finalCash as number) - p.totalBuyIn }))
+    .filter(p => p.net < 0)
     .sort((a, b) => a.net - b.net);
 
   const transactions: Debt[] = [];
-
-  while (winners.length > 0 && losers.length > 0) {
+  while (winners.length && losers.length) {
     const winner = winners[0];
     const loser = losers[0];
-    const amount = Math.min(winner.net, -loser.net);
+    const amount = Math.min(winner.net, Math.abs(loser.net));
     transactions.push({ from: loser.name, to: winner.name, amount });
     winner.net -= amount;
     loser.net += amount;
-    if (Math.abs(winner.net) < 0.01) {
-      winners.shift();
-    }
-    if (Math.abs(loser.net) < 0.01) {
-      losers.shift();
-    }
+    if (Math.abs(winner.net) < 0.01) winners.shift();
+    if (Math.abs(loser.net) < 0.01) losers.shift();
   }
   return transactions;
 }
 
-export default function EndGameSummary({
-  players,
-  onClose,
-}: EndGameSummaryProps) {
+export default function EndGameSummary({ players, onClose }: EndGameSummaryProps) {
   const debts = calculateDebts(players);
 
   return (
@@ -68,9 +61,9 @@ export default function EndGameSummary({
         {debts.length === 0 ? (
           <p className="mb-4">No transactions needed. Everyone is settled!</p>
         ) : (
-          <table className="w-full table-auto mb-4">
+          <table className="w-full table-auto mb-4 border-collapse">
             <thead>
-              <tr>
+              <tr className="bg-gray-700">
                 <th className="border p-2">From</th>
                 <th className="border p-2">To</th>
                 <th className="border p-2">Amount ($)</th>
@@ -78,7 +71,7 @@ export default function EndGameSummary({
             </thead>
             <tbody>
               {debts.map((debt, index) => (
-                <tr key={index}>
+                <tr key={index} className="hover:bg-gray-600 transition-colors">
                   <td className="border p-2">{debt.from}</td>
                   <td className="border p-2">{debt.to}</td>
                   <td className="border p-2">{debt.amount.toFixed(2)}</td>
@@ -89,7 +82,7 @@ export default function EndGameSummary({
         )}
         <button
           onClick={onClose}
-          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition-colors"
           aria-label="Close End Game Summary"
         >
           Close

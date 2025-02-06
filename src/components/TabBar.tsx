@@ -4,41 +4,37 @@
 import React from "react";
 
 interface TabBarProps {
-  activeTab: "current" | "past";
-  setActiveTab: (tab: "current" | "past") => void;
+  activeTab: "ledger" | "pastTournaments";
+  setActiveTab: (tab: "ledger" | "pastTournaments") => void;
 }
 
 export default function TabBar({ activeTab, setActiveTab }: TabBarProps) {
   return (
-    <nav aria-label="Main Navigation" className="mb-4 border-b border-gray-700">
-      <ul className="flex space-x-4">
-        <li>
-          <button
-            className={`py-2 px-4 focus:outline-none ${
-              activeTab === "current"
-                ? "border-b-2 border-blue-500"
-                : "text-gray-400 hover:text-white"
-            }`}
-            onClick={() => setActiveTab("current")}
-            aria-current={activeTab === "current" ? "page" : undefined}
-          >
-            Ledger Rankings
-          </button>
-        </li>
-        <li>
-          <button
-            className={`py-2 px-4 focus:outline-none ${
-              activeTab === "past"
-                ? "border-b-2 border-blue-500"
-                : "text-gray-400 hover:text-white"
-            }`}
-            onClick={() => setActiveTab("past")}
-            aria-current={activeTab === "past" ? "page" : undefined}
-          >
-            Past Tournaments
-          </button>
-        </li>
-      </ul>
+    <nav className="bg-gray-900 shadow-md">
+      <div className="container mx-auto flex justify-center gap-6 py-3">
+        <button
+          onClick={() => setActiveTab("ledger")}
+          className={`px-4 py-2 rounded transition ${
+            activeTab === "ledger"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-700 hover:bg-gray-600 text-gray-300"
+          }`}
+          aria-current={activeTab === "ledger" ? "page" : undefined}
+        >
+          Ledger Rankings
+        </button>
+        <button
+          onClick={() => setActiveTab("pastTournaments")}
+          className={`px-4 py-2 rounded transition ${
+            activeTab === "pastTournaments"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-700 hover:bg-gray-600 text-gray-300"
+          }`}
+          aria-current={activeTab === "pastTournaments" ? "page" : undefined}
+        >
+          Past Tournaments
+        </button>
+      </div>
     </nav>
   );
 }

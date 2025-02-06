@@ -1,122 +1,71 @@
-// /app/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { onSnapshot, collection } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import PasscodeEntry from "@/components/PasscodeEntry";
 import TabBar from "@/components/TabBar";
 import AddPlayerForm from "@/components/AddPlayerForm";
 import PlayerList from "@/components/PlayerList";
 import TournamentControls from "@/components/TournamentControls";
-import EndGameSummary from "@/components/EndGameSummary";
 import PastTournamentsList from "@/components/PastTournamentsList";
-import { Player, Tournament } from "@/types";
-
-const LOCAL_STORAGE_PLAYERS_KEY = "currentTournamentPlayers";
-const LOCAL_STORAGE_PAST_KEY = "pastTournaments";
-
-const defaultPlayers: Player[] = [
-  { id: 1, name: "Alice", totalBuyIn: 10, finalCash: null },
-  { id: 2, name: "Bob", totalBuyIn: 10, finalCash: null },
-  { id: 3, name: "Charlie", totalBuyIn: 10, finalCash: null },
-];
+import EndGameSummary from "@/components/EndGameSummary";
+import { Player } from "@/types";
 
 export default function HomePage() {
+  const [hasAccess, setHasAccess] = useState<boolean>(false);
   const [players, setPlayers] = useState<Player[]>([]);
-  const [pastTournaments, setPastTournaments] = useState<Tournament[]>([]);
-  const [activeTab, setActiveTab] = useState<"current" | "past">("current");
+  const [activeTab, setActiveTab] = useState<"ledger" | "pastTournaments">("ledger");
   const [showEndGameSummary, setShowEndGameSummary] = useState(false);
 
-  // Load current tournament players from localStorage.
+  // Check for cached access in localStorage
   useEffect(() => {
-    const storedPlayers = localStorage.getItem(LOCAL_STORAGE_PLAYERS_KEY);
-    if (storedPlayers) {
-      setPlayers(JSON.parse(storedPlayers));
-    } else {
-      setPlayers(defaultPlayers);
+    const stored = localStorage.getItem("accessGranted");
+    if (stored === "true") {
+      setHasAccess(true);
     }
   }, []);
 
-  // Save current tournament players to localStorage when changed.
+  // Listen for real‑time updates from the "players" collection in Firestore
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_PLAYERS_KEY, JSON.stringify(players));
-  }, [players]);
-
-  // Load past tournaments from localStorage.
-  useEffect(() => {
-    const storedTournaments = localStorage.getItem(LOCAL_STORAGE_PAST_KEY);
-    if (storedTournaments) {
-      setPastTournaments(JSON.parse(storedTournaments));
-    }
+    const unsubscribe = onSnapshot(collection(db, "players"), (snapshot) => {
+      const playersData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Player[];
+      setPlayers(playersData);
+    });
+    return () => unsubscribe();
   }, []);
 
-  // Save past tournaments when changed.
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_PAST_KEY, JSON.stringify(pastTournaments));
-  }, [pastTournaments]);
-
-  // When ending the game, store the tournament in pastTournaments and show the summary.
-  const handleEndGame = (tournamentName: string) => {
-    const newTournament: Tournament = {
-      id: Date.now(),
-      name: tournamentName,
-      date: new Date().toISOString(),
-      players: players,
-      debts: [],
-    };
-    setPastTournaments([newTournament, ...pastTournaments]);
-    setShowEndGameSummary(true);
-  };
-
-  // Reset the current tournament (clearing final cash values).
-  const handleResetTournament = () => {
-    if (
-      confirm(
-        "Are you sure you want to reset the tournament? This will clear final cash and start a new game."
-      )
-    ) {
-      const resetPlayers = players.map((player) => ({
-        ...player,
-        finalCash: null,
-      }));
-      setPlayers(resetPlayers);
-      setShowEndGameSummary(false);
-    }
-  };
-
-  // Update players from child components.
-  const updatePlayers = (updatedPlayers: Player[]) => {
-    setPlayers(updatedPlayers);
-  };
+  if (!hasAccess) {
+    return <PasscodeEntry setHasAccess={setHasAccess} />;
+  }
 
   return (
-    <main className="p-4">
+    <div>
       <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {activeTab === "current" ? (
-        <section aria-label="Current Tournament Ledger">
-          <h1 className="text-3xl font-bold mb-4">
-            Current Tournament Ledger
-          </h1>
-          <AddPlayerForm players={players} updatePlayers={updatePlayers} />
-          <PlayerList players={players} updatePlayers={updatePlayers} />
-          <TournamentControls
-            players={players}
-            updatePlayers={updatePlayers}
-            onEndGame={handleEndGame}
-            onReset={handleResetTournament}
-          />
-          {showEndGameSummary && (
-            <EndGameSummary
-              players={players}
-              onClose={() => setShowEndGameSummary(false)}
-            />
-          )}
-        </section>
-      ) : (
-        <section aria-label="Past Tournaments">
-          <h1 className="text-3xl font-bold mb-4">Past Tournaments</h1>
-          <PastTournamentsList tournaments={pastTournaments} />
-        </section>
-      )}
-    </main>
+      <div className="mt-4">
+        {activeTab === "ledger" ? (
+          <>
+            <AddPlayerForm />
+            <PlayerList players={players} />
+            <TournamentControls players={players} />
+            <button 
+              onClick={() => setShowEndGameSummary(true)}
+              className="mt-4 bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded transition-colors"
+            >
+              Show End Game Summary
+            </button>
+            {showEndGameSummary && (
+              <EndGameSummary players={players} onClose={() => setShowEndGameSummary(false)} />
+            )}
+          </>
+        ) : (
+          <PastTournamentsList />
+        )}
+      </div>
+    </div>
   );
 }

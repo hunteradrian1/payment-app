@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, FormEvent } from "react";
-import { collection, getDocs, updateDoc, deleteDoc, addDoc, doc } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, addDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Player } from "@/types";
 

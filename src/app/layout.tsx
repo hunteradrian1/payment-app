@@ -3,8 +3,8 @@ import "./globals.css";
 import React from "react";
 
 export const metadata = {
-  title: "Poker Tournament Ledger",
-  description: "Manage your poker tournaments with ease",
+  title: "Brown Wrestling Poker App",
+  description: "Poker Tournaments Manager",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode; }) {

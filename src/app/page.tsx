@@ -49,7 +49,6 @@ export default function HomePage() {
       <div className="mt-4">
         {activeTab === "ledger" ? (
           <>
-            <AddPlayerForm />
             <PlayerList players={players} />
             <TournamentControls players={players} />
             <button 

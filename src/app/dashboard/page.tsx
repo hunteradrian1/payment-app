@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { onSnapshot, collection } from 'firebase/firestore';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onSnapshot, collection, addDoc } from 'firebase/firestore';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { db, auth } from '@/lib/firebase';
 import TabBar from '@/components/TabBar';
-import AddPlayerForm from '@/components/AddPlayerForm';
 import PlayerList from '@/components/PlayerList';
 import TournamentControls from '@/components/TournamentControls';
 import PastTournamentsList from '@/components/PastTournamentsList';
@@ -19,26 +18,28 @@ export default function DashboardPage() {
   const [showEndGameSummary, setShowEndGameSummary] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
 
-  // Ensure hydration-safe rendering
+  // Hydration-safe rendering
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Auth protection
+  // Auth protection and saving current user details
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (!user) {
         router.push('/');
       } else {
+        setCurrentUser(user);
         setLoading(false);
       }
     });
     return () => unsubscribeAuth();
   }, [router]);
 
-  // Firestore player sync
+  // Real-time sync for players collection
   useEffect(() => {
     const unsubscribePlayers = onSnapshot(collection(db, 'players'), (snapshot) => {
       const playersData = snapshot.docs.map((doc) => ({
@@ -49,6 +50,25 @@ export default function DashboardPage() {
     });
     return () => unsubscribePlayers();
   }, []);
+
+  // Function to join the game using current authenticated user details
+  const joinGame = async () => {
+    if (!currentUser) return;
+    try {
+      await addDoc(collection(db, "players"), {
+        uid: currentUser.uid,
+        name: currentUser.displayName || currentUser.email,
+        totalBuyIn: 0,
+        finalCash: null,
+      });
+    } catch (error) {
+      console.error("Error joining game:", error);
+      alert("Failed to join game. Please try again.");
+    }
+  };
+
+  // Check if the current user is already in the game
+  const hasJoined = players.some((p) => p.uid === currentUser?.uid);
 
   if (!isClient) return null;
   if (loading) return <p className="text-center text-gray-300 mt-20">Loading dashboard...</p>;
@@ -62,7 +82,7 @@ export default function DashboardPage() {
             ♠️ Poker Tournament Dashboard
           </h1>
           <p className="text-gray-400 mt-1 text-lg">
-            Manage your poker nights with style
+            Manage and track your game performance
           </p>
         </div>
         <button
@@ -83,10 +103,29 @@ export default function DashboardPage() {
       <section className="space-y-8">
         {activeTab === 'ledger' ? (
           <>
-            {/* Add Player Card */}
+            {/* Join Game Card */}
             <div className="bg-gray-800 rounded-xl p-8 shadow-xl border border-gray-700">
-              <h2 className="text-2xl font-semibold mb-4">➕ Add Player</h2>
-              <AddPlayerForm />
+              {!hasJoined ? (
+                <>
+                  <h2 className="text-2xl font-semibold mb-4">➕ Join Game</h2>
+                  <p className="mb-4 text-gray-400">
+                    Click below to join the current game and start tracking your performance.
+                  </p>
+                  <button
+                    onClick={joinGame}
+                    className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg transition duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    Join Game
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-2xl font-semibold mb-4">You are in the game</h2>
+                  <p className="text-gray-400">
+                    Your performance is being tracked. Check out the player rankings below.
+                  </p>
+                </>
+              )}
             </div>
 
             {/* Player Rankings Card */}
@@ -95,7 +134,7 @@ export default function DashboardPage() {
               {players.length > 0 ? (
                 <PlayerList players={players} />
               ) : (
-                <p className="text-gray-400">No players yet. Add some above!</p>
+                <p className="text-gray-400">No players have joined yet.</p>
               )}
             </div>
 

@@ -18,14 +18,16 @@ export default function HomePage() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-bold mb-6">Brown Poker App</h1>
-      <button
-        onClick={handleGoogleSignIn}
-        className="px-6 py-3 bg-red-500 text-white rounded hover:bg-red-600"
-      >
-        Continue with Google
-      </button>
+    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-50 p-8">
+      <h1 className="text-5xl font-bold mb-8 tracking-tight">Brown Poker App</h1>
+      <div className="flex flex-col md:flex-row gap-6">
+        <button
+          onClick={handleGoogleSignIn}
+          className="px-8 py-4 bg-red-500 hover:bg-red-600 transition-colors rounded-lg text-white text-xl shadow-lg"
+        >
+          Continue with Google
+        </button>
+      </div>
     </main>
   );
 }

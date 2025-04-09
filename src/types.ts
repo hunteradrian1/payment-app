@@ -1,6 +1,7 @@
 // /types.ts
 export interface Player {
-  id: string; // Firestore document ID
+  id: string;
+  uid?: string;
   name: string;
   totalBuyIn: number;
   finalCash: number | null;

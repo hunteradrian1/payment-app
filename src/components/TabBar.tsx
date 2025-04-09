@@ -1,11 +1,13 @@
-// /components/TabBar.tsx
+// src/components/TabBar.tsx
 "use client";
 
 import React from "react";
 
+export type DashboardTab = "ledger" | "pastTournaments" | "leaderboard";
+
 interface TabBarProps {
-  activeTab: "ledger" | "pastTournaments";
-  setActiveTab: (tab: "ledger" | "pastTournaments") => void;
+  activeTab: DashboardTab;
+  setActiveTab: (tab: DashboardTab) => void;
 }
 
 export default function TabBar({ activeTab, setActiveTab }: TabBarProps) {
@@ -33,6 +35,17 @@ export default function TabBar({ activeTab, setActiveTab }: TabBarProps) {
           aria-current={activeTab === "pastTournaments" ? "page" : undefined}
         >
           Past Tournaments
+        </button>
+        <button
+          onClick={() => setActiveTab("leaderboard")}
+          className={`px-4 py-2 rounded transition ${
+            activeTab === "leaderboard"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-700 hover:bg-gray-600 text-gray-300"
+          }`}
+          aria-current={activeTab === "leaderboard" ? "page" : undefined}
+        >
+          Leaderboard
         </button>
       </div>
     </nav>

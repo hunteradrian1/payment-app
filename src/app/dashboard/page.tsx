@@ -1,43 +1,40 @@
+// src/app/dashboard/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { onSnapshot, collection, addDoc } from 'firebase/firestore';
-import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { db, auth } from '@/lib/firebase';
-import TabBar from '@/components/TabBar';
+import TabBar, { DashboardTab } from '@/components/TabBar';
 import PlayerList from '@/components/PlayerList';
 import TournamentControls from '@/components/TournamentControls';
 import PastTournamentsList from '@/components/PastTournamentsList';
 import EndGameSummary from '@/components/EndGameSummary';
+import Leaderboard from '@/components/Leaderboard';
 import { Player } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function DashboardPage() {
   const [players, setPlayers] = useState<Player[]>([]);
-  const [activeTab, setActiveTab] = useState<'ledger' | 'pastTournaments'>('ledger');
+  const [activeTab, setActiveTab] = useState<DashboardTab>('ledger');
   const [showEndGameSummary, setShowEndGameSummary] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
 
-  // Hydration-safe rendering
+  const { user: currentUser, loading } = useAuth();
+
+  // Ensure client-only rendering
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Auth protection and saving current user details
+  // Redirect if not authenticated after loading completes
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.push('/');
-      } else {
-        setCurrentUser(user);
-        setLoading(false);
-      }
-    });
-    return () => unsubscribeAuth();
-  }, [router]);
+    if (!loading && !currentUser) {
+      router.push('/');
+    }
+  }, [currentUser, loading, router]);
 
   // Real-time sync for players collection
   useEffect(() => {
@@ -101,7 +98,7 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <section className="space-y-8">
-        {activeTab === 'ledger' ? (
+        {activeTab === 'ledger' && (
           <>
             {/* Join Game Card */}
             <div className="bg-gray-800 rounded-xl p-8 shadow-xl border border-gray-700">
@@ -156,11 +153,17 @@ export default function DashboardPage() {
               )}
             </div>
           </>
-        ) : (
+        )}
+        {activeTab === 'pastTournaments' && (
           // Past Tournaments Card
           <div className="bg-gray-800 rounded-xl p-8 shadow-xl border border-gray-700">
             <h2 className="text-2xl font-semibold mb-4">🕒 Past Tournaments</h2>
             <PastTournamentsList />
+          </div>
+        )}
+        {activeTab === 'leaderboard' && (
+          <div className="bg-gray-800 rounded-xl p-8 shadow-xl border border-gray-700">
+            <Leaderboard />
           </div>
         )}
       </section>

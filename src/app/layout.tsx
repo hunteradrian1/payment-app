@@ -1,3 +1,4 @@
+// src/app/layout.tsx
 import "./globals.css";
 import React from "react";
 import AppHeader from "@/components/AppHeader";

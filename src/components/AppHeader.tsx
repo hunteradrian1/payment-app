@@ -1,24 +1,10 @@
+// src/components/AppHeader.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { auth } from "@/lib/firebase";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AppHeader() {
-  const [user, setUser] = useState<null | { displayName: string | null; email: string | null }>(null);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (currentUser) {
-        setUser({
-          displayName: currentUser.displayName,
-          email: currentUser.email,
-        });
-      } else {
-        setUser(null);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+  const { user } = useAuth();
 
   return (
     <div className="container flex items-center justify-between">

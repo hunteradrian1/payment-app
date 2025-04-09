@@ -1,9 +1,11 @@
+// src/components/TournamentControls.tsx
 "use client";
 
 import React, { useState, FormEvent } from "react";
 import { collection, getDocs, deleteDoc, addDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Player } from "@/types";
+import { updateUserStats } from "@/lib/updateUserStats";
 
 interface TournamentControlsProps {
   players: Player[];
@@ -12,7 +14,7 @@ interface TournamentControlsProps {
 export default function TournamentControls({ players }: TournamentControlsProps) {
   const [tournamentName, setTournamentName] = useState("");
 
-  // End the tournament by saving a snapshot of the current players
+  // End the tournament by saving a snapshot of the current players and updating leaderboard stats.
   const handleEndGame = async (e: FormEvent) => {
     e.preventDefault();
     if (!tournamentName.trim()) {
@@ -20,11 +22,25 @@ export default function TournamentControls({ players }: TournamentControlsProps)
       return;
     }
     try {
+      // Save the tournament snapshot in Firestore.
       await addDoc(collection(db, "tournaments"), {
         name: tournamentName.trim(),
         date: new Date().toISOString(),
         players: players || [],
       });
+
+      // For each player with a final result, update leaderboard stats.
+      // Only update players whose finalCash is not null.
+      for (const player of players) {
+        if (player.finalCash !== null) {
+          const net = player.finalCash - player.totalBuyIn;
+          const won = net > 0;
+          // If a player has a Firebase Auth UID, use that, otherwise use the player document id.
+          const userId = player.uid ?? player.id;
+          await updateUserStats(userId, player.name, net, won);
+        }
+      }
+
       alert(`Tournament "${tournamentName}" ended and saved.`);
       setTournamentName("");
     } catch (error) {
@@ -38,9 +54,9 @@ export default function TournamentControls({ players }: TournamentControlsProps)
     if (confirm("Are you sure you want to reset the tournament? This will remove all players.")) {
       try {
         const playersSnapshot = await getDocs(collection(db, "players"));
-        const deletePromises = playersSnapshot.docs.map((document) => {
-          return deleteDoc(doc(db, "players", document.id));
-        });
+        const deletePromises = playersSnapshot.docs.map((document) =>
+          deleteDoc(doc(db, "players", document.id))
+        );
         await Promise.all(deletePromises);
         alert("Tournament reset successfully. All players have been removed.");
       } catch (error) {

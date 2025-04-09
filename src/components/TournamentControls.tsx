@@ -12,7 +12,7 @@ interface TournamentControlsProps {
 }
 
 export default function TournamentControls({ players }: TournamentControlsProps) {
-  const [tournamentName, setTournamentName] = useState("");
+  const [tournamentName, setTournamentName] = useState("Tournament");
 
   // End the tournament by saving a snapshot of the current players and updating leaderboard stats.
   const handleEndGame = async (e: FormEvent) => {
@@ -42,7 +42,7 @@ export default function TournamentControls({ players }: TournamentControlsProps)
       }
 
       alert(`Tournament "${tournamentName}" ended and saved.`);
-      setTournamentName("");
+      setTournamentName("Tournament");
     } catch (error) {
       console.error("Error ending tournament:", error);
       alert("Failed to end tournament. Please try again.");

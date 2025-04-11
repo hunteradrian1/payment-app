@@ -11,9 +11,13 @@ export default function HomePage() {
     try {
       await signInWithPopup(auth, provider);
       router.push('/dashboard');
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(err);
+        alert(err.message);
+      } else {
+        console.error('An unexpected error occurred:', err);
+      }
     }
   };
 

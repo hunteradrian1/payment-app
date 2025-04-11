@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { onSnapshot, collection, addDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { db, auth } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import TabBar, { DashboardTab } from '@/components/TabBar';
 import PlayerList from '@/components/PlayerList';
 import TournamentControls from '@/components/TournamentControls';
@@ -119,18 +119,12 @@ export default function DashboardPage() {
             <div className="bg-gray-800 rounded-xl p-8 shadow-xl border border-gray-700">
               <h2 className="text-2xl font-semibold mb-4">🎮 Tournament Controls</h2>
               <TournamentControls players={players} />
-
-
-
               <button
                 onClick={() => setShowEndGameSummary(true)}
                 className="mt-6 inline-block bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-lg transition duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 Show End Game Summary
               </button>
-
-
-              
               {showEndGameSummary && (
                 <EndGameSummary
                   players={players}

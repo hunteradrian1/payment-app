@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 interface UserStat {
@@ -12,7 +12,7 @@ interface UserStat {
   totalNet: number;
   gamesPlayed: number;
   tournamentsWon: number;
-  lastUpdated: any;
+  lastUpdated: Timestamp;
 }
 
 export default function Leaderboard() {

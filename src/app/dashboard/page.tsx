@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from 'react';
 import { onSnapshot, collection, addDoc } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { db, auth } from '@/lib/firebase';
 import TabBar, { DashboardTab } from '@/components/TabBar';
@@ -72,25 +71,6 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-gray-100 p-8">
-      {/* Header */}
-      <header className="flex items-center justify-between mb-8 border-b border-gray-700 pb-4">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight">
-            ♠️ Poker Tournament Dashboard
-          </h1>
-          <p className="text-gray-400 mt-1 text-lg">
-            Manage and track your game performance
-          </p>
-        </div>
-        <button
-          onClick={() => signOut(auth).then(() => router.push('/'))}
-          className="flex items-center bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-lg transition duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          aria-label="Sign Out"
-        >
-          Sign Out
-        </button>
-      </header>
-
       {/* Tabs */}
       <section className="mb-8">
         <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -139,12 +119,18 @@ export default function DashboardPage() {
             <div className="bg-gray-800 rounded-xl p-8 shadow-xl border border-gray-700">
               <h2 className="text-2xl font-semibold mb-4">🎮 Tournament Controls</h2>
               <TournamentControls players={players} />
+
+
+
               <button
                 onClick={() => setShowEndGameSummary(true)}
                 className="mt-6 inline-block bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-lg transition duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 Show End Game Summary
               </button>
+
+
+              
               {showEndGameSummary && (
                 <EndGameSummary
                   players={players}

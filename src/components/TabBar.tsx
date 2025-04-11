@@ -23,7 +23,7 @@ export default function TabBar({ activeTab, setActiveTab }: TabBarProps) {
           }`}
           aria-current={activeTab === "ledger" ? "page" : undefined}
         >
-          Ledger Rankings
+          Games
         </button>
         <button
           onClick={() => setActiveTab("pastTournaments")}

@@ -17,7 +17,8 @@ import { useAuth } from '@/hooks/useAuth';
 export default function DashboardPage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [activeTab, setActiveTab] = useState<DashboardTab>('ledger');
-  const [showEndGameSummary, setShowEndGameSummary] = useState(false);
+  // Instead of a simple Boolean, we store the snapshot from the ended game.
+  const [endedPlayers, setEndedPlayers] = useState<Player[] | null>(null);
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
@@ -99,15 +100,15 @@ export default function DashboardPage() {
                 <>
                   <h2 className="text-2xl font-semibold mb-4">You are in the game</h2>
                   <p className="text-gray-400">
-                    Your performance is being tracked. Check out the player rankings below.
+                    Your performance is being tracked. Check out the game tables below.
                   </p>
                 </>
               )}
             </div>
 
-            {/* Player Rankings Card */}
+            {/* Tables Card (previously Player Rankings) */}
             <div className="bg-gray-800 rounded-xl p-8 shadow-xl border border-gray-700">
-              <h2 className="text-2xl font-semibold mb-4">📋 Player Rankings</h2>
+              <h2 className="text-2xl font-semibold mb-4">Tables</h2>
               {players.length > 0 ? (
                 <PlayerList players={players} />
               ) : (
@@ -118,17 +119,15 @@ export default function DashboardPage() {
             {/* Tournament Controls Card */}
             <div className="bg-gray-800 rounded-xl p-8 shadow-xl border border-gray-700">
               <h2 className="text-2xl font-semibold mb-4">🎮 Tournament Controls</h2>
-              <TournamentControls players={players} />
-              <button
-                onClick={() => setShowEndGameSummary(true)}
-                className="mt-6 inline-block bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-lg transition duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                Show End Game Summary
-              </button>
-              {showEndGameSummary && (
+              <TournamentControls
+                players={players}
+                // Pass the snapshot from the End Game button handler.
+                onTournamentEnd={(ended) => setEndedPlayers(ended)}
+              />
+              {endedPlayers && (
                 <EndGameSummary
-                  players={players}
-                  onClose={() => setShowEndGameSummary(false)}
+                  players={endedPlayers}
+                  onClose={() => setEndedPlayers(null)}
                 />
               )}
             </div>

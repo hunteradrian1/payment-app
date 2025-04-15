@@ -61,28 +61,30 @@ export default function Leaderboard() {
       {userStats.length === 0 ? (
         <p className="mt-4 text-gray-400">No leaderboard data available.</p>
       ) : (
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-800">
-              <th className="border p-3">Rank</th>
-              <th className="border p-3">Player</th>
-              <th className="border p-3">Total Net</th>
-              <th className="border p-3">Games Played</th>
-              <th className="border p-3">Tournaments Won</th>
-            </tr>
-          </thead>
-          <tbody>
-            {userStats.map((stat, index) => (
-              <tr key={stat.id} className="hover:bg-gray-700 transition-colors">
-                <td className="border p-3 text-center">{index + 1}</td>
-                <td className="border p-3">{stat.displayName}</td>
-                <td className="border p-3 text-center">{Number(stat.totalNet).toFixed(2)}</td>
-                <td className="border p-3 text-center">{stat.gamesPlayed}</td>
-                <td className="border p-3 text-center">{stat.tournamentsWon}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-800">
+                <th className="border p-3">Rank</th>
+                <th className="border p-3">Player</th>
+                <th className="border p-3">Total Net</th>
+                <th className="border p-3">Games Played</th>
+                <th className="border p-3">Tournaments Won</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {userStats.map((stat, index) => (
+                <tr key={stat.id} className="hover:bg-gray-700 transition-colors">
+                  <td className="border p-3 text-center">{index + 1}</td>
+                  <td className="border p-3">{stat.displayName}</td>
+                  <td className="border p-3 text-center">{Number(stat.totalNet).toFixed(2)}</td>
+                  <td className="border p-3 text-center">{stat.gamesPlayed}</td>
+                  <td className="border p-3 text-center">{stat.tournamentsWon}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

@@ -1,4 +1,3 @@
-// src/components/TabBar.tsx
 "use client";
 
 import React from "react";
@@ -13,7 +12,7 @@ interface TabBarProps {
 export default function TabBar({ activeTab, setActiveTab }: TabBarProps) {
   return (
     <nav className="bg-gray-900 shadow-md">
-      <div className="container mx-auto flex justify-center gap-6 py-3">
+      <div className="container mx-auto flex flex-wrap justify-center gap-4 py-3">
         <button
           onClick={() => setActiveTab("ledger")}
           className={`px-4 py-2 rounded transition ${

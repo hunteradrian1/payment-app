@@ -1,4 +1,4 @@
-// /components/EndGameSummary.tsx
+// src/components/EndGameSummary.tsx
 "use client";
 
 import React from "react";
@@ -16,7 +16,6 @@ interface EndGameSummaryProps {
 }
 
 function calculateDebts(players: Player[]): Debt[] {
-  // Only include players with finalCash values.
   type PlayerWithNet = Player & { net: number };
   const winners: PlayerWithNet[] = players
     .filter(p => p.finalCash !== null)
@@ -54,31 +53,33 @@ export default function EndGameSummary({ players, onClose }: EndGameSummaryProps
       aria-modal="true"
       aria-labelledby="end-game-summary-title"
     >
-      <div className="bg-gray-800 p-6 rounded shadow-lg max-w-2xl w-full">
+      <div className="bg-gray-800 p-6 rounded shadow-lg max-w-2xl w-full sm:w-11/12">
         <h2 id="end-game-summary-title" className="text-2xl font-bold mb-4">
           End Game Summary - Who Owes What
         </h2>
         {debts.length === 0 ? (
           <p className="mb-4">No transactions needed. Everyone is settled!</p>
         ) : (
-          <table className="w-full table-auto mb-4 border-collapse">
-            <thead>
-              <tr className="bg-gray-700">
-                <th className="border p-2">From</th>
-                <th className="border p-2">To</th>
-                <th className="border p-2">Amount ($)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {debts.map((debt, index) => (
-                <tr key={index} className="hover:bg-gray-600 transition-colors">
-                  <td className="border p-2">{debt.from}</td>
-                  <td className="border p-2">{debt.to}</td>
-                  <td className="border p-2">{debt.amount.toFixed(2)}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto mb-4 border-collapse">
+              <thead>
+                <tr className="bg-gray-700">
+                  <th className="border p-2">From</th>
+                  <th className="border p-2">To</th>
+                  <th className="border p-2">Amount ($)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {debts.map((debt, index) => (
+                  <tr key={index} className="hover:bg-gray-600 transition-colors">
+                    <td className="border p-2">{debt.from}</td>
+                    <td className="border p-2">{debt.to}</td>
+                    <td className="border p-2">{debt.amount.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
         <button
           onClick={onClose}

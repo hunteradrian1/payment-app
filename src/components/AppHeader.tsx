@@ -13,18 +13,22 @@ export default function AppHeader() {
   if (!user) return null;
 
   return (
-    <div className="container flex items-center justify-between py-4">
-      <h1 className="text-2xl font-bold">♠️ Brown Wrestling Poker</h1>
-      <span className="text-lg">
-        Welcome, {user.displayName || user.email}
-      </span>
-      <button
-        onClick={() => signOut(auth).then(() => router.push('/'))}
-        className="flex items-center bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-lg transition duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        aria-label="Sign Out"
-      >
-        Sign Out
-      </button>
-    </div>
+    <header className="container mx-auto flex flex-col sm:flex-row items-center justify-between py-4">
+      <h1 className="text-2xl font-bold mb-2 sm:mb-0">
+        ♠️ Brown Wrestling Poker
+      </h1>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+        <span className="text-lg">
+          Welcome, {user.displayName || user.email}
+        </span>
+        <button
+          onClick={() => signOut(auth).then(() => router.push('/'))}
+          className="flex items-center bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          aria-label="Sign Out"
+        >
+          Sign Out
+        </button>
+      </div>
+    </header>
   );
 }

@@ -1,4 +1,3 @@
-// src/components/PlayerList.tsx
 "use client";
 
 import React from "react";
@@ -91,61 +90,63 @@ export default function PlayerList({ players }: PlayerListProps) {
   };
 
   return (
-    <table className="w-full table-auto mb-6 border-collapse">
-      <thead>
-        <tr className="bg-gray-700">
-          <th className="border p-2">Name</th>
-          <th className="border p-2">Total Buy-In ($)</th>
-          <th className="border p-2">Final Cash ($)</th>
-          <th className="border p-2">Net ($)</th>
-          <th className="border p-2">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {players.map((player) => (
-          <tr key={player.id} className="hover:bg-gray-600 transition-colors">
-            <td className="border p-2">{player.name}</td>
-            <td className="border p-2">{player.totalBuyIn.toFixed(2)}</td>
-            <td className="border p-2">
-              {player.finalCash === null ? "Active" : player.finalCash.toFixed(2)}
-            </td>
-            <td className="border p-2">
-              {player.finalCash === null ? "—" : calculateNet(player).toFixed(2)}
-            </td>
-            <td className="border p-2 flex flex-col gap-2">
-              <button
-                onClick={() => handleEdit(player)}
-                className="bg-indigo-600 hover:bg-indigo-700 px-2 py-1 rounded transition-colors"
-              >
-                Edit
-              </button>
-              {player.finalCash === null ? (
-                <>
-                  <button
-                    onClick={() => handleAddMoney(player)}
-                    className="bg-green-600 hover:bg-green-700 px-2 py-1 rounded transition-colors"
-                  >
-                    Add Money
-                  </button>
-                  <button
-                    onClick={() => handleCashOut(player)}
-                    className="bg-yellow-600 hover:bg-yellow-700 px-2 py-1 rounded transition-colors"
-                  >
-                    Cash Out
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => handleRejoin(player)}
-                  className="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded transition-colors"
-                >
-                  Rejoin
-                </button>
-              )}
-            </td>
+    <div className="overflow-x-auto">
+      <table className="w-full table-auto mb-6 border-collapse">
+        <thead>
+          <tr className="bg-gray-700">
+            <th className="border p-2">Name</th>
+            <th className="border p-2">Total Buy-In ($)</th>
+            <th className="border p-2">Final Cash ($)</th>
+            <th className="border p-2">Net ($)</th>
+            <th className="border p-2">Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {players.map((player) => (
+            <tr key={player.id} className="hover:bg-gray-600 transition-colors">
+              <td className="border p-2">{player.name}</td>
+              <td className="border p-2">{player.totalBuyIn.toFixed(2)}</td>
+              <td className="border p-2">
+                {player.finalCash === null ? "Active" : player.finalCash.toFixed(2)}
+              </td>
+              <td className="border p-2">
+                {player.finalCash === null ? "—" : calculateNet(player).toFixed(2)}
+              </td>
+              <td className="border p-2 flex flex-col gap-2">
+                <button
+                  onClick={() => handleEdit(player)}
+                  className="bg-indigo-600 hover:bg-indigo-700 px-2 py-1 rounded transition-colors"
+                >
+                  Edit
+                </button>
+                {player.finalCash === null ? (
+                  <>
+                    <button
+                      onClick={() => handleAddMoney(player)}
+                      className="bg-green-600 hover:bg-green-700 px-2 py-1 rounded transition-colors"
+                    >
+                      Add Money
+                    </button>
+                    <button
+                      onClick={() => handleCashOut(player)}
+                      className="bg-yellow-600 hover:bg-yellow-700 px-2 py-1 rounded transition-colors"
+                    >
+                      Cash Out
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => handleRejoin(player)}
+                    className="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded transition-colors"
+                  >
+                    Rejoin
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

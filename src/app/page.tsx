@@ -17,7 +17,6 @@ export default function HomePage() {
     }
   }, [user, router]);
 
-  // While checking auth, you could display a loading state or nothing
   if (user) return null;
 
   const handleGoogleSignIn = async () => {
@@ -35,13 +34,13 @@ export default function HomePage() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-50 p-8">
-      <h1 className="text-5xl font-bold mb-8 tracking-tight">
+    <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-black text-gray-50 p-4 sm:p-8">
+      <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 tracking-tight text-center">
         Brown Poker App
       </h1>
       <button
         onClick={handleGoogleSignIn}
-        className="px-8 py-4 bg-red-500 hover:bg-red-600 transition-colors rounded-lg text-white text-xl shadow-lg"
+        className="w-full sm:w-auto px-8 py-4 bg-red-500 hover:bg-red-600 transition-colors rounded-lg text-lg sm:text-xl shadow-lg"
       >
         Continue with Google
       </button>
